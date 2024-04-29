@@ -1,0 +1,13 @@
+import pdfkit
+from bs4 import BeautifulSoup
+
+# Assuming 'parsed_html' is the parsed HTML content using BeautifulSoup
+parsed_html = BeautifulSoup(html_content, 'html.parser')
+
+# Save the parsed HTML content to a file
+with open('parsed_html.html', 'w', encoding='utf-8') as file:
+    file.write(parsed_html.prettify())
+
+# Convert the saved HTML file to PDF
+pdfkit.from_file('parsed_html.html', 'output.pdf')
+
