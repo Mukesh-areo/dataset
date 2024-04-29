@@ -11,3 +11,19 @@ with open('parsed_html.html', 'w', encoding='utf-8') as file:
 # Convert the saved HTML file to PDF
 pdfkit.from_file('parsed_html.html', 'output.pdf')
 
+
+
+from bs4 import BeautifulSoup
+from weasyprint import HTML
+
+# Assuming 'parsed_html' is the parsed HTML content using BeautifulSoup
+parsed_html = BeautifulSoup(html_content, 'html.parser')
+
+# Save the parsed HTML content to a file
+with open('parsed_html.html', 'w', encoding='utf-8') as file:
+    file.write(parsed_html.prettify())
+
+# Convert the saved HTML file to PDF
+HTML('parsed_html.html').write_pdf('output.pdf')
+
+
