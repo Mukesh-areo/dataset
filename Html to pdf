@@ -27,3 +27,28 @@ with open('parsed_html.html', 'w', encoding='utf-8') as file:
 HTML('parsed_html.html').write_pdf('output.pdf')
 
 
+
+from bs4 import BeautifulSoup
+from weasyprint import HTML, CSS
+
+# Assuming 'parsed_html' is the parsed HTML content using BeautifulSoup
+parsed_html = BeautifulSoup(html_content, 'html.parser')
+
+# Save the parsed HTML content to a file
+with open('parsed_html.html', 'w', encoding='utf-8') as file:
+    file.write(parsed_html.prettify())
+
+# Define the CSS stylesheet for the footer
+css = """
+@page {
+    @bottom-center {
+        content: "Page " counter(page);
+    }
+}
+"""
+
+# Convert the saved HTML file to PDF with the footer
+HTML('parsed_html.html').write_pdf('output.pdf', stylesheets=[CSS(string=css)])
+
+
+
