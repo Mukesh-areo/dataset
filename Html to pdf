@@ -89,3 +89,82 @@ css = """
 HTML('parsed_html.html').write_pdf('output.pdf', stylesheets=[CSS(string=css)], presentational_hints=True)
 
 
+
+
+
+
+
+
+
+from PyPDF2 import PdfFileReader, PdfFileWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+
+# Path to the input PDF file
+input_pdf_path = 'input.pdf'
+
+# Path to the output PDF file
+output_pdf_path = 'output.pdf'
+
+# Logo image path
+logo_path = 'logo.png'
+
+# Function to create header content
+def create_header(c, pdf_title):
+    c.saveState()
+    c.setStrokeColorRGB(0, 0, 0)
+    c.setLineWidth(0.5)
+    c.setFont("Helvetica", 10)
+    c.drawString(inch, letter[1]-0.75*inch, pdf_title)
+    c.drawImage(logo_path, 0.5*inch, letter[1]-0.5*inch, width=1*inch, height=0.5*inch)
+    c.restoreState()
+
+# Function to create footer content
+def create_footer(c, page_num):
+    c.saveState()
+    c.setStrokeColorRGB(0, 0, 0)
+    c.setLineWidth(0.5)
+    c.setFont("Helvetica", 8)
+    c.drawString(inch, 0.75*inch, f"Page {page_num}")
+    c.drawImage(logo_path, 0.5*inch, 0.5*inch, width=1*inch, height=0.5*inch)
+    c.restoreState()
+
+# Create a PDF writer object
+output_pdf = PdfFileWriter()
+
+# Read the input PDF file
+input_pdf = PdfFileReader(open(input_pdf_path, "rb"))
+
+# Iterate through each page of the input PDF
+for page_num in range(input_pdf.getNumPages()):
+    # Create a new PDF canvas
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    
+    # Get the PDF page
+    page = input_pdf.getPage(page_num)
+    
+    # Create the header
+    create_header(can, "Header Title")
+    
+    # Create the footer
+    create_footer(can, page_num+1)
+    
+    # Close the canvas
+    can.save()
+    
+    # Move to the beginning of the StringIO buffer
+    packet.seek(0)
+    new_pdf = PdfFileReader(packet)
+    
+    # Merge the PDF page and the new header/footer
+    page.merge_page(new_pdf.getPage(0))
+    
+    # Add the merged page to the output PDF
+    output_pdf.addPage(page)
+
+# Write the output PDF to a file
+with open(output_pdf_path, "wb") as output_file:
+    output_pdf.write(output_file)
+
