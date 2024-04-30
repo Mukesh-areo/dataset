@@ -58,3 +58,40 @@ if __name__ == '__main__':
 
     # Call the function with parsed arguments
     add_logo_to_pdf(args.input_folder, args.output_folder, args.logo_path)
+
+
+
+
+
+
+# my_script.spec
+
+block_cipher = None
+
+a = Analysis(['my_script.py'],
+             pathex=['C:\\path\\to\\your\\script'],
+             binaries=[],
+             datas=[],
+             hiddenimports=[],
+             hookspath=[],
+             runtime_hooks=[],
+             excludes=[],
+             win_no_prefer_redirects=False,
+             win_private_assemblies=False,
+             cipher=block_cipher,
+             noarchive=False)
+
+pyz = PYZ(a.pure, a.zipped_data,
+             cipher=block_cipher)
+
+exe = EXE(pyz,
+          a.scripts,
+          [],
+          exclude_binaries=True,
+          name='my_script',
+          debug=False,
+          bootloader_ignore_signals=False,
+          strip=False,
+          upx=True,
+          console=False )
+
