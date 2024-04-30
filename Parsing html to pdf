@@ -1,0 +1,60 @@
+import argparse
+from PyPDF2 import PdfFileWriter, PdfFileReader
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+
+def add_logo_to_pdf(input_folder, output_folder, logo_path):
+    # Path to the PDF file
+    input_pdf_path = input_folder + '/input.pdf'
+    output_pdf_path = output_folder + '/output.pdf'
+
+    # Create a canvas for the logo
+    c = canvas.Canvas('logo.pdf', pagesize=letter)
+    c.drawImage(logo_path, 0, 0, width=1*inch, height=1*inch)
+    c.save()
+
+    # Read the PDF file
+    input_pdf = PdfFileReader(open(input_pdf_path, 'rb'))
+    output_pdf = PdfFileWriter()
+
+    # Open the logo PDF file
+    logo_pdf = PdfFileReader(open('logo.pdf', 'rb'))
+
+    # Get the first page of the logo PDF
+    logo_page = logo_pdf.getPage(0)
+
+    # Iterate over each page in the input PDF file
+    for i in range(input_pdf.getNumPages()):
+        # Get the page from the input PDF
+        page = input_pdf.getPage(i)
+        
+        # Create a new page with the same dimensions as the input page
+        new_page = page.createBlankPage(width=int(page.mediaBox.getWidth()), height=int(page.mediaBox.getHeight()))
+
+        # Add the logo to the new page's header
+        new_page.mergeTranslatedPage(logo_page, 0, int(page.mediaBox.getHeight()) - int(1*inch))
+
+        # Add the logo to the new page's footer
+        new_page.mergeTranslatedPage(logo_page, 0, 1*inch)
+
+        # Add the original page's content to the new page
+        new_page.mergeTranslatedPage(page, 0, 0)
+
+        # Add the new page to the output PDF
+        output_pdf.addPage(new_page)
+
+    # Write the output PDF to a file
+    with open(output_pdf_path, 'wb') as f:
+        output_pdf.write(f)
+
+if __name__ == '__main__':
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Add logo to PDF header and footer.')
+    parser.add_argument('input_folder', help='Path to the input folder containing the PDF file.')
+    parser.add_argument('output_folder', help='Path to the output folder where the modified PDF will be saved.')
+    parser.add_argument('logo_path', help='Path to the logo image.')
+    args = parser.parse_args()
+
+    # Call the function with parsed arguments
+    add_logo_to_pdf(args.input_folder, args.output_folder, args.logo_path)
