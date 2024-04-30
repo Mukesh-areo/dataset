@@ -1,4 +1,4 @@
-import argparse
+inimport argparse
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -94,4 +94,15 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False )
+import streamlit as st
+
+# List of text to highlight
+text_list = ["This is text 1", "This is text 2", "This is text 3"]
+
+# Define colors for highlighting
+colors = ["red", "blue", "green"]
+
+# Display each text in the list with a different color
+for i, text in enumerate(text_list):
+    st.markdown(f'<span style="color:{colors[i]}">{text}</span>', unsafe_allow_html=True)
 
