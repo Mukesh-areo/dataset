@@ -106,3 +106,58 @@ colors = ["red", "blue", "green"]
 for i, text in enumerate(text_list):
     st.markdown(f'<span style="color:{colors[i]}">{text}</span>', unsafe_allow_html=True)
 
+
+
+
+
+
+
+
+import streamlit as st
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Streamlit app title and description
+st.title('HTML Content Highlighter')
+st.write('This app highlights the main <div> tag in an HTML file that contains similar content.')
+
+# Function to highlight the main div containing the matched content
+def highlight_main_div(html_content, contents):
+    # Create a TF-IDF vectorizer
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform(contents)
+
+    # Calculate cosine similarity between each pair of contents
+    similarities = cosine_similarity(tfidf_matrix, tfidf_matrix)
+
+    # Find and highlight the main div surrounding the matching content in the HTML
+    for i in range(len(contents)):
+        for j in range(i+1, len(contents)):
+            similarity = similarities[i][j]
+            if similarity > 0.80:
+                # Search for content i and j in the HTML content
+                if re.search(re.escape(contents[i]) + '|' + re.escape(contents[j]), html_content):
+                    # Add the background color to the main div containing the content
+                    pattern = re.compile(rf'<div>(?=.*?{re.escape(contents[i])})(?=.*?{re.escape(contents[j])}).*?</div>', re.DOTALL)
+                    html_content = re.sub(pattern, rf'<div style="background-color: yellow;">\g<0></div>', html_content)
+    return html_content
+
+# Streamlit file uploader for input HTML file
+uploaded_file = st.file_uploader("Upload an HTML file", type=["html"])
+
+if uploaded_file is not None:
+    # Read the uploaded file
+    html_content = uploaded_file.getvalue().decode('utf-8')
+
+    # Example list of contents
+    contents = [
+        "The application downloads files from http://techslides.com and http://download.blender.org. If these domains are not accessible it will not work. You can change the source location of files to download by changing the contents of url1 and url2 variables in main.js file.",
+        "A model trained for text generation can be later adapted to follow instructions. One of the most used open-source models for instruction is OpenAssistant, which you can try at Hugging Chat."
+    ]
+
+    # Highlight the main div containing the matched content
+    highlighted_content = highlight_main_div(html_content, contents)
+
+    # Streamlit link to download the output HTML file
+    st.markdown(get_binary_file_downloader_html(highlighted_content, file_name="highlighted_content.html"), unsafe_allow_html=True)
