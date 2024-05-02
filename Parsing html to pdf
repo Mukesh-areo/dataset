@@ -161,3 +161,38 @@ if uploaded_file is not None:
 
     # Streamlit link to download the output HTML file
     st.markdown(get_binary_file_downloader_html(highlighted_content, file_name="highlighted_content.html"), unsafe_allow_html=True)
+
+
+
+
+
+import streamlit as st
+import re
+
+# Streamlit app title and description
+st.title('HTML Content Extractor')
+st.write('This app extracts content from an HTML file using a specified regex pattern.')
+
+# Streamlit file uploader for input HTML file
+uploaded_file = st.file_uploader("Upload an HTML file", type=["html"])
+
+# Streamlit text input for regex pattern
+regex_pattern = st.text_input("Enter the regex pattern")
+
+if uploaded_file is not None:
+    # Read the uploaded file
+    html_content = uploaded_file.getvalue().decode('utf-8')
+
+    # Find all matches using the specified pattern
+    matches = re.findall(regex_pattern, html_content, re.DOTALL)
+
+    # Store the matches in a list
+    content_list = []
+    for match in matches:
+        content_list.append(match.strip())
+
+    # Display the extracted content
+    st.write("Extracted Content:")
+    for content in content_list:
+        st.write(content)
+
